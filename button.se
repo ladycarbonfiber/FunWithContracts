@@ -1,0 +1,39 @@
+#Button contract
+macro BUY_IN: 10000
+macro BLOCK_TIMER: 3
+
+data leader
+data is_expired
+data last_block
+
+def init():
+    self.is_expired = 0
+    self.last_block = block.number
+def any():
+    log(block.number)
+    if block.number - self.last_block >= BLOCK_TIMER:
+        self.is_expired = 1
+def press_button():
+    log(self.is_expired)
+    if self.is_expired == 1:
+        #game is up, refund value
+        send(msg.sender, msg.value)
+        return(1)
+    if msg.value >= BUY_IN:
+        self.leader = msg.sender
+        self.last_block = block.number
+        return(0)
+    else:
+        #refund if below cutoff
+        send(msg.sender, msg.value)
+        return(1)
+def claim_treasure():
+    if self.is_expired ==1:
+        if msg.sender == self.leader:
+            #send the winner their winnings and reset the game
+            log(self.balance)
+            send(msg.sender, self.balance)
+            is_expired =0
+            last_block = block.number
+            return(0)
+    return(1)
